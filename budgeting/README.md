@@ -1,4 +1,4 @@
-# Budgeting — API Inteligente com Reconhecimento de Fala
+# 🤖 Budgeting — API Inteligente com Reconhecimento de Fala
 
 Assistente financeiro pessoal comandado por **voz**, construído com **Spring Boot 4** e **Spring AI 2**.
 
