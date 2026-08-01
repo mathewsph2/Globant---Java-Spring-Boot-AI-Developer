@@ -1,6 +1,24 @@
 # 💻 Globant - Java & Spring Boot AI Developer
 
- 📌 Aplicações back-end modernas com Java e Spring Boot, explorando desde os fundamentos da linguagem até a criação de APIs completas e integradas a bancos de dados e IA
+ Aplicações back-end modernas com Java e Spring Boot, explorando desde os fundamentos da linguagem até a criação de APIs completas e integradas a bancos de dados e IA
+
+
+ ---
+
+## 📌 Projeto em destaque
+
+
+### 🤖 [Budgeting — API Inteligente com Reconhecimento de Fala]([https://github.com/mathewsph2/NUTRIFIT_Spring_Boot](https://github.com/mathewsph2/Globant---Java-Spring-Boot-AI-Developer/tree/main/budgeting))
+
+
+Assistente financeiro pessoal comandado por voz, construído com Spring Boot 4 e Spring AI 2.
+
+Você fala "Gastei 50 reais no Starbucks agora" e a API transcreve o áudio, entende a intenção, executa uma função Java real que persiste a transação no banco, e responde falando.
+
+
+`Spring AI` · `OpenAI` · `JUnit 5` · `AssertJ` · `Thymeleaf` · `Mockito`· `Spring Boot` · `Maven` · `H2`
+
+---
 
 
  ## 🗂️ Introdução ao desenvolvimento Java e Setup do ambiente
