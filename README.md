@@ -40,6 +40,10 @@ Você fala "Gastei 50 reais no Starbucks agora" e a API transcreve o áudio, ent
  ## 🗂️ Projeto final: Assistente virtual inteligente por voz 
 
 
+---
+
+![Certificado GLOBANT - Java Spring Boot & AI Developer](certificado.jpg)
+
 
 
 --- 
