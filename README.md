@@ -16,7 +16,7 @@ Assistente financeiro pessoal comandado por voz, construído com Spring Boot 4 e
 Você fala "Gastei 50 reais no Starbucks agora" e a API transcreve o áudio, entende a intenção, executa uma função Java real que persiste a transação no banco, e responde falando.
 
 
-`Spring AI` · `OpenAI` · `JUnit 5` · `AssertJ` · `Thymeleaf` · `Mockito`· `Spring Boot` · `Maven` · `H2`
+`Spring AI` · `OpenAI` · `JUnit 5` · `AssertJ` · `Mockito`· `Spring Boot` · `Maven` · `H2`
 
 ---
 
