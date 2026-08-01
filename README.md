@@ -8,7 +8,7 @@
 ## 📌 Projeto em destaque
 
 
-### 🤖 [Budgeting — API Inteligente com Reconhecimento de Fala]([https://github.com/mathewsph2/Globant---Java-Spring-Boot-AI-Developer/tree/main/budgeting])
+### 🤖 [Budgeting — API Inteligente com Reconhecimento de Fala](https://github.com/mathewsph2/Globant---Java-Spring-Boot-AI-Developer/tree/main/budgeting)
 
 
 Assistente financeiro pessoal comandado por voz, construído com Spring Boot 4 e Spring AI 2.
