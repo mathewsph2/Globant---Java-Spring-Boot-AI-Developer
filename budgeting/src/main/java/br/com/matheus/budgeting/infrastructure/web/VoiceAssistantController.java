@@ -20,6 +20,14 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.matheus.budgeting.application.ai.VoiceAssistantService;
 import br.com.matheus.budgeting.application.ai.VoiceAssistantService.VoiceInteraction;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Assistente de voz", description = "Pipeline completo: audio entra, audio sai")
 @RestController
 @RequestMapping("/api/assistant/voice")
 public class VoiceAssistantController {
@@ -33,8 +41,36 @@ public class VoiceAssistantController {
         this.voiceAssistantService = voiceAssistantService;
     }
 
+    @Operation(
+            summary = "Envia um comando de voz e recebe a resposta falada",
+            description = """
+                    Transcreve o audio, interpreta a intencao, executa a acao no sistema
+                    e devolve a resposta sintetizada em MP3.
+
+                    A transcricao e o texto da resposta voltam nos cabecalhos
+                    X-Transcription e X-Reply, codificados em URL.
+
+                    Formatos aceitos: flac, m4a, mp3, mp4, mpeg, mpga, oga, ogg, wav, webm.
+                    Limite de 25 MB.
+                    """)
+    @ApiResponse(responseCode = "200", description = "Audio da resposta",
+            content = @Content(mediaType = "audio/mpeg",
+                    schema = @Schema(type = "string", format = "binary")))
+    @ApiResponse(responseCode = "400", description = "Arquivo de audio vazio",
+            content = @Content(mediaType = "application/problem+json"))
+    @ApiResponse(responseCode = "413", description = "Arquivo acima de 25 MB",
+            content = @Content(mediaType = "application/problem+json"))
+    @ApiResponse(responseCode = "415", description = "Formato de audio nao suportado",
+            content = @Content(mediaType = "application/problem+json"))
+    @ApiResponse(responseCode = "422", description = "Audio nao pode ser entendido",
+            content = @Content(mediaType = "application/problem+json"))
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "audio/mpeg")
-    public ResponseEntity<byte[]> conversar(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<byte[]> conversar(
+            @Parameter(description = "Arquivo de audio com o comando falado",
+                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(type = "string", format = "binary")))
+            @RequestParam("file") MultipartFile file) throws IOException {
+
         if (file.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Arquivo de audio vazio.");
         }

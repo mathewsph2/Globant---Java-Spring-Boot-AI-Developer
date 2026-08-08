@@ -1,4 +1,4 @@
-# 🤖 Budgeting — API Inteligente com Reconhecimento de Fala
+# Budgeting — API Inteligente com Reconhecimento de Fala
 
 Assistente financeiro pessoal comandado por **voz**, construído com **Spring Boot 4** e **Spring AI 2**.
 
@@ -89,6 +89,7 @@ Regras que o projeto segue:
 | OpenAI `gpt-4o-mini` | — | chat + tool calling |
 | OpenAI `whisper-1` | — | transcrição (STT) |
 | OpenAI `gpt-4o-mini-tts` | — | síntese de voz (TTS) |
+| springdoc-openapi | 3.1.0 | documentação OpenAPI + Swagger UI |
 | JUnit 5 + AssertJ + Mockito | — | testes |
 
 > **Atenção se você seguir tutoriais:** o Spring AI 2.0 exige Spring Boot 4 e trouxe
@@ -113,8 +114,10 @@ e Java 21. O Spring AI foi adicionado depois, manualmente, via BOM:
 
 ![Configuração no Spring Initializr](docs/prints/01-setup-initializr.jpg)
 
-O projeto inteiro consome poucos centavos: `whisper-1` custa ~US$ 0,006/min e o `gpt-4o-mini`
-é um dos modelos mais baratos disponíveis.
+**O custo é irrisório.** Todo o desenvolvimento deste projeto — incluindo os testes de
+integração e as execuções que geraram os prints deste README — consumiu **36 requisições,
+20.770 tokens e US$ 0,01** no painel da OpenAI. O `whisper-1` custa ~US$ 0,006/min e o
+`gpt-4o-mini` é um dos modelos mais baratos disponíveis.
 
 ### 1. Configurar a chave
 
@@ -140,6 +143,17 @@ Aplicação em `http://localhost:8080`, console do H2 em `http://localhost:8080/
 ---
 
 ## Endpoints
+
+**Documentação interativa (Swagger UI):** `http://localhost:8080/docs`
+· contrato OpenAPI 3.1 em `/v3/api-docs`
+
+![Swagger UI com os quatro endpoints](docs/prints/07-swagger-ui.jpg)
+
+Dá para testar tudo pelo navegador, inclusive enviar o arquivo de áudio e ouvir
+a resposta, sem precisar de `curl`.
+
+📖 **[Guia passo a passo de como testar a API pelo Swagger UI](docs/SWAGGER.md)** — seis
+exercícios comentados, do registro de um gasto ao pipeline completo de voz.
 
 | Método | Rota | Entrada | Saída |
 |---|---|---|---|
@@ -389,11 +403,28 @@ perder os dados a cada reinício. Para persistir, trocar por
 serviço externo vira dívida se ficar desatualizada; o comentário com a URL diz de onde ela
 veio e quando revalidar.
 
+**O player do Swagger UI mostra duração `0:00` — e tudo bem.** O MP3 gerado pela OpenAI não
+traz o cabeçalho `Xing`, que guarda a contagem total de frames, e o Swagger serve o áudio
+como `blob:`. Sem *range requests*, o navegador não consegue medir a duração sem decodificar
+o arquivo inteiro. O áudio toca normalmente (o contador da esquerda avança) e a duração
+aparece correta em qualquer player fora do navegador. Corrigir exigiria reescrever o MP3
+para inserir o cabeçalho — trabalho real e dependência nova para melhorar um número na tela
+de uma ferramenta de teste. Fica como limitação conhecida, [documentada no guia do
+Swagger](docs/SWAGGER.md#11-limitações).
+
+**Exclusão explícita de `swagger-annotations` no `pom.xml`.** O SDK da OpenAI, transitivo do
+Spring AI, traz a variante **não-jakarta** dessa biblioteca — que publica as mesmas classes,
+no mesmo pacote `io.swagger.v3.oas.annotations`, numa versão antiga. Como são artefatos
+diferentes aos olhos do Maven, ele não resolve o conflito e as duas ficam no classpath.
+A exclusão (mais o alinhamento de `swagger-annotations-jakarta` em 2.2.52 no
+`dependencyManagement`) é o que faz o `/v3/api-docs` funcionar. O `pom.xml` traz o comentário
+explicando, para que ninguém "limpe" isso depois e reintroduza o bug.
+
 ---
 
 ## O que aprendi
 
-Os sete pontos abaixo são erros que eu cometi construindo este projeto. Foram o que mais
+Os oito pontos abaixo são erros que eu cometi construindo este projeto. Foram o que mais
 ensinou.
 
 **1. Um LLM não tem relógio, nem banco, nem acesso a nada.**
@@ -435,6 +466,16 @@ comando responder `60.00` vindo de um `SELECT` foi o momento em que o projeto fe
 `logging.level.org.springframework.ai=DEBUG` mostra o system prompt já renderizado, o
 `tool_calls` com os argumentos que o modelo extraiu, e a segunda requisição carregando o
 resultado da ferramenta. Depurar LLM sem ver isso é chute.
+
+**8. `NoSuchMethodError` nunca é erro de código — é conflito de versão.**
+Ao adicionar o springdoc, o `/v3/api-docs` passou a devolver 500. E o meu próprio
+`@ExceptionHandler(Exception.class)` escondeu a causa atrás de um *"Erro inesperado"*
+genérico — a mensagem segura vai para o cliente, mas a verdade só estava no log.
+O erro real era `NoSuchMethodError: Schema.$dynamicRef()`: compilei contra uma versão da
+classe e a JVM carregou outra. `mvn dependency:tree` mostrou dois artefatos publicando o
+mesmo pacote. Aprendi a distinção: **erro de compilação** = o método não existe em lugar
+nenhum; **`NoSuchMethodError` em runtime** = existem duas versões e a errada venceu o
+classpath.
 
 ---
 

@@ -45,6 +45,17 @@
             <type>pom</type>
             <scope>import</scope>
         </dependency>
+
+        <!--
+          Alinha as anotacoes do Swagger com a versao do swagger-core que o
+          springdoc 3.1.0 usa (2.2.52). Sem isso, o Spring AI traz a 2.2.38 e
+          o springdoc quebra ao procurar metodos que so existem na mais nova.
+        -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+            <version>2.2.52</version>
+        </dependency>
     </dependencies>
 </dependencyManagement>
 
@@ -91,9 +102,31 @@
 
 
 		<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-starter-model-openai</artifactId>
-</dependency>
+    		<groupId>org.springframework.ai</groupId>
+    		<artifactId>spring-ai-starter-model-openai</artifactId>
+			<exclusions>
+				<!--
+				  O SDK da OpenAI traz io.swagger.core.v3:swagger-annotations (variante
+				  NAO-jakarta) numa versao antiga. Ela ocupa o mesmo pacote
+				  io.swagger.v3.oas.annotations que o springdoc usa, mas sem o metodo
+				  Schema.$dynamicRef() — o que quebra /v3/api-docs com NoSuchMethodError.
+				  As anotacoes continuam disponiveis pela variante -jakarta, trazida pelo
+				  proprio Spring AI e alinhada no dependencyManagement acima.
+				-->
+				<exclusion>
+					<groupId>io.swagger.core.v3</groupId>
+					<artifactId>swagger-annotations</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+		<dependency>
+    		<groupId>org.springdoc</groupId>
+    		<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    		<version>3.1.0</version>
+		</dependency>
+
 
 
 	</dependencies>
